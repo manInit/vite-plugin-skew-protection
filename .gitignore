@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+*.tsbuildinfo
+*.tgz
+
+# Test output
+coverage
+
+# Logs
+*.log
+
+# Local environment
+.env
+.env.*
+
+# Editors and OS
+.idea
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

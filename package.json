@@ -1,0 +1,74 @@
+{
+  "name": "vite-plugin-skew-protection",
+  "version": "0.1.0",
+  "description": "Fix \"Failed to fetch dynamically imported module\" after deploys. Keeps old chunks alive on any static host and recovers gracefully when they're gone.",
+  "keywords": [
+    "chunk-load-error",
+    "deploy",
+    "dynamic-import",
+    "failed-to-fetch-dynamically-imported-module",
+    "skew-protection",
+    "spa",
+    "version-skew",
+    "vite",
+    "vite-plugin"
+  ],
+  "homepage": "https://github.com/manInit/vite-plugin-skew-protection#readme",
+  "bugs": {
+    "url": "https://github.com/manInit/vite-plugin-skew-protection/issues"
+  },
+  "license": "MIT",
+  "author": "Denis Bronnikov",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manInit/vite-plugin-skew-protection.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "check:package": "pnpm build && publint && attw --pack . --profile node16",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
+    "test": "vitest run --project unit",
+    "test:e2e": "vitest run --project e2e",
+    "test:compat": "node test/compat/run.mjs",
+    "prepublishOnly": "pnpm check && pnpm test:e2e && pnpm check:package"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@types/node": "^20.19.0",
+    "esbuild": "^0.27.7",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "playwright": "1.56.0",
+    "publint": "^0.3.24",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  },
+  "peerDependencies": {
+    "vite": ">=5"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@12.3.1"
+}
