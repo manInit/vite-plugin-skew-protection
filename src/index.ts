@@ -256,7 +256,7 @@ async function readPreviousManifest(
 ): Promise<SkewManifest | null> {
   let fileContents: Uint8Array | null;
   try {
-    fileContents = await previousDeploy.readFile(manifestFileName);
+    fileContents = await previousDeploy.readFile(manifestFileName, { fresh: true });
   } catch (error) {
     // S3 and similar object storage answer 403 instead of 404 when the file doesn't exist
     // and the bucket can't be listed, which is how public buckets are usually set up.
@@ -278,8 +278,10 @@ async function readPreviousManifest(
   }
 
   if (!fileContents) {
+    // A wrong `previous` is indistinguishable from the first deploy and would silently disable carrying forever.
     logger.info(
-      `${LOG_PREFIX} no ${manifestFileName} at ${previousDeploy.location}, looks like the first protected deploy`,
+      `${LOG_PREFIX} no ${manifestFileName} at ${previousDeploy.location}, looks like the first protected deploy. ` +
+        `If it isn't, check that \`previous\` points at the deployed site, including its base path`,
     );
     return null;
   }

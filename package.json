@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-skew-protection",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fix \"Failed to fetch dynamically imported module\" after deploys. Keeps old chunks alive on any static host and recovers gracefully when they're gone.",
   "keywords": [
     "chunk-load-error",

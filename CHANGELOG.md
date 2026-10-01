@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Fixed: the manifest of the previous deploy could come from a CDN cache. After two deploys in a row the chunks of the latest one were then not carried, and tabs open on it broke. The manifest is now requested with a unique `?skew=` query and `Cache-Control: no-cache`; assets are requested as before.
+- The log now hints at checking `previous` (including the base path) when no manifest is found, since a wrong `previous` looks exactly like the first deploy.
+
 ## 0.1.0
 
 Initial release.

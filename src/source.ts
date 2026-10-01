@@ -10,8 +10,16 @@ import { isUrl, sleep } from './utils';
 export interface PreviousDeploy {
   /** Human-readable location, used in log messages. */
   location: string;
-  /** Returns the file contents, or null when the file does not exist. Throws on any other error. */
-  readFile(path: string): Promise<Uint8Array | null>;
+  /**
+   * Returns the file contents, or null when the file does not exist. Throws on any other error.
+   * With `fresh` a remote deploy is asked to bypass its cache. That is for files whose contents
+   * change under the same name (the manifest); hashed assets never need it.
+   */
+  readFile(path: string, options?: ReadFileOptions): Promise<Uint8Array | null>;
+}
+
+export interface ReadFileOptions {
+  fresh?: boolean;
 }
 
 export interface PreviousDeployOptions {
@@ -51,10 +59,16 @@ function openRemoteDeploy(siteUrl: string, options: PreviousDeployOptions): Prev
   const baseUrl = new URL(siteUrl.endsWith('/') ? siteUrl : siteUrl + '/');
   const fetchFile = options.fetch ?? globalThis.fetch;
 
-  async function requestFile(path: string): Promise<Uint8Array | null> {
+  async function requestFile(path: string, cacheBuster: string | null): Promise<Uint8Array | null> {
     const fileUrl = new URL(path, baseUrl);
+    if (cacheBuster) {
+      // A CDN in front of the host may keep files for minutes (GitHub Pages: 10). A stale manifest
+      // doesn't list the latest deploy, so its chunks would not be carried. Most CDNs ignore the
+      // request header, the unique query string is what gets past them.
+      fileUrl.searchParams.set('skew', cacheBuster);
+    }
     const response = await fetchFile(fileUrl, {
-      headers: options.headers,
+      headers: cacheBuster ? { 'cache-control': 'no-cache', ...options.headers } : options.headers,
       signal: AbortSignal.timeout(options.timeoutMs),
       redirect: 'follow',
     });
@@ -79,10 +93,11 @@ function openRemoteDeploy(siteUrl: string, options: PreviousDeployOptions): Prev
   return {
     location: baseUrl.href,
 
-    async readFile(path) {
+    async readFile(path, { fresh = false } = {}) {
+      const cacheBuster = fresh ? Date.now().toString(36) : null;
       for (let attempt = 1; ; attempt++) {
         try {
-          return await requestFile(path);
+          return await requestFile(path, cacheBuster);
         } catch (error) {
           if (attempt >= MAX_ATTEMPTS || !isWorthRetrying(error)) {
             throw error;

@@ -6,7 +6,7 @@
  * Used by tsup (esbuild plugin) and by Vitest (Vite plugin), so tests run the same code as the package.
  */
 import { readFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve, sep } from 'node:path';
 import { transform, type Plugin as EsbuildPlugin } from 'esbuild';
 import type { Plugin as VitePlugin } from 'vite';
 
@@ -31,16 +31,24 @@ export function inlineScriptEsbuildPlugin(): EsbuildPlugin {
   return {
     name: 'inline-script',
     setup(build) {
+      // esbuild prints the module path in a comment of the bundle, so it is kept relative to the project:
+      // an absolute one would publish the directory layout of the build machine.
+      const projectRoot = build.initialOptions.absWorkingDir ?? process.cwd();
       build.onResolve({ filter: /\?inline-script$/ }, (args) => ({
-        path: resolve(args.resolveDir, args.path.slice(0, -SUFFIX.length)),
+        path: relative(projectRoot, resolve(args.resolveDir, args.path.slice(0, -SUFFIX.length)))
+          .split(sep)
+          .join('/'),
         namespace: NAMESPACE,
       }));
-      build.onLoad({ filter: /.*/, namespace: NAMESPACE }, async (args) => ({
-        contents: await compileInlineScript(args.path),
-        loader: 'text',
-        resolveDir: dirname(args.path),
-        watchFiles: [args.path],
-      }));
+      build.onLoad({ filter: /.*/, namespace: NAMESPACE }, async (args) => {
+        const filePath = resolve(projectRoot, args.path);
+        return {
+          contents: await compileInlineScript(filePath),
+          loader: 'text',
+          resolveDir: dirname(filePath),
+          watchFiles: [filePath],
+        };
+      });
     },
   };
 }

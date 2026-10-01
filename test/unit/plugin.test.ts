@@ -118,8 +118,7 @@ describe('plugin build', () => {
 
     // A host that serves the manifest but answers every other path with index.html (status 200).
     const fakeFetch: typeof fetch = async (input) => {
-      const url = String(input);
-      if (url.endsWith('/skew-manifest.json')) {
+      if (new URL(String(input)).pathname.endsWith('/skew-manifest.json')) {
         return new Response(manifestText, { headers: { 'content-type': 'application/json' } });
       }
       return new Response('<!doctype html><html></html>', { headers: { 'content-type': 'text/html' } });
@@ -213,7 +212,7 @@ describe('plugin build', () => {
       const url = String(input);
       if (!failedOnce.has(url)) {
         failedOnce.add(url);
-        if (url.endsWith('.json')) {
+        if (new URL(url).pathname.endsWith('.json')) {
           throw new Error('ECONNRESET');
         }
         return new Response('bad gateway', { status: 502 });
@@ -226,6 +225,35 @@ describe('plugin build', () => {
     const v1Page = v1.assets.find((a) => a.startsWith('page-'))!;
     expect(v2.manifest.deploys).toHaveLength(2);
     expect(v2.assets).toContain(v1Page);
+  });
+
+  it('bypasses the CDN cache for the manifest, but not for the assets', async () => {
+    const d1 = join(work, 'c1');
+    await buildVersion('v1', d1, { previous: false });
+    const serve = serveDirectory(d1);
+
+    const requests: { url: URL; cacheControl: string | null }[] = [];
+    const recordingFetch: typeof fetch = async (input, init) => {
+      requests.push({ url: new URL(String(input)), cacheControl: new Headers(init?.headers).get('cache-control') });
+      return serve(input);
+    };
+
+    await buildVersion('v2', join(work, 'c2'), {
+      previous: 'https://example.test/app/',
+      fetch: recordingFetch,
+      headers: { authorization: 'Bearer token' },
+    });
+
+    const manifestRequests = requests.filter((r) => r.url.pathname.endsWith('/skew-manifest.json'));
+    const assetRequests = requests.filter((r) => !r.url.pathname.endsWith('/skew-manifest.json'));
+    expect(manifestRequests).toHaveLength(1);
+    expect(manifestRequests[0]!.url.searchParams.get('skew')).toBeTruthy();
+    expect(manifestRequests[0]!.cacheControl).toBe('no-cache');
+    expect(assetRequests.length).toBeGreaterThan(0);
+    for (const request of assetRequests) {
+      expect(request.url.search).toBe('');
+      expect(request.cacheControl).toBeNull();
+    }
   });
 
   it('does not retry a missing file', async () => {
