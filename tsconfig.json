@@ -6,6 +6,9 @@
     "allowImportingTsExtensions": true,
     "lib": ["ES2022", "DOM"],
     "types": ["node"],
+    "paths": {
+      "vite-plugin-skew-protection": ["./src/index.ts"]
+    },
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
