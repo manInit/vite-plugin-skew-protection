@@ -1,0 +1,48 @@
+name: Demo
+
+# Redeploys the demo to GitHub Pages. Every deploy replaces the whole site,
+# so tabs opened before it only keep working because of the plugin.
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Every hour. Not at :00, when GitHub delays scheduled runs the most. `DEPLOY_MINUTE` in demo/main.ts must match.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time: a build must see the manifest of the deploy right before it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The demo uses the plugin from this commit, not the one from npm.
+      - run: pnpm build
+      - id: pages
+        uses: actions/configure-pages@v5
+      - run: pnpm demo:build --base "${{ steps.pages.outputs.base_path }}/"
+        env:
+          SKEW_PREVIOUS_URL: ${{ steps.pages.outputs.base_url }}/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: demo/dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,67 @@
+name: Bug report
+description: Chunks still fail after a deploy, the build fails, or the plugin does something unexpected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Most problems depend on the host and on how the build reaches the previous deploy, so the answers below save a round of questions.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you got. For errors in the browser, add the message from the console and the status of the failed request in the Network tab.
+    validations:
+      required: true
+  - type: input
+    id: hosting
+    attributes:
+      label: Hosting
+      description: Where the site is deployed and how. Mention a CDN in front of it, if there is one.
+      placeholder: GitHub Pages via actions/deploy-pages / S3 + CloudFront / nginx in Docker / ...
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      placeholder: 0.1.1
+    validations:
+      required: true
+  - type: input
+    id: vite-version
+    attributes:
+      label: Vite version
+      description: And the framework or meta-framework, if any.
+      placeholder: Vite 7.1.0, React
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Plugin options
+      description: |
+        The `skewProtection({ ... })` call from your Vite config and the `base` option, if you set it.
+        For `previous`, say what it is: a URL (with or without a base path), a local directory, `false`, or the `SKEW_PREVIOUS_URL` variable. Replace private URLs and credentials, but keep the shape of the path.
+      render: ts
+    validations:
+      required: true
+  - type: textarea
+    id: build-log
+    attributes:
+      label: Build log
+      description: The lines that start with `[skew-protection]` from the build of the deploy that broke, and from the one before it if you have it.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: manifest
+    attributes:
+      label: skew-manifest.json
+      description: Optional. The manifest that is live on the site right now. It only contains file names.
+      render: json
+  - type: input
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Optional. A link to a repository or to the site where it can be seen.

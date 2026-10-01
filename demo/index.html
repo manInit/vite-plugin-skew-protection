@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>vite-plugin-skew-protection: live demo</title>
+    <style>
+      body {
+        margin: 0;
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        background: #f6f7f9;
+        color: #111827;
+      }
+      main {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 28px 16px 48px;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 4px;
+      }
+      a {
+        color: #2563eb;
+      }
+      code {
+        font-size: 14px;
+        padding: 1px 5px;
+        border-radius: 6px;
+        background: #e5e7eb;
+        overflow-wrap: anywhere;
+      }
+      .card {
+        margin-top: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .card p {
+        margin: 0;
+      }
+      .card p + p {
+        margin-top: 8px;
+      }
+      .muted {
+        color: #6b7280;
+        font-size: 14px;
+      }
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+      }
+      button {
+        font: inherit;
+        width: 100%;
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: 0;
+        background: #111827;
+        color: #fff;
+        cursor: pointer;
+      }
+      button:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+      #status[data-state='ready'] {
+        box-shadow: inset 4px 0 0 #16a34a;
+      }
+      #notice {
+        box-shadow: inset 4px 0 0 #d97706;
+      }
+      .ok {
+        color: #15803d;
+        font-weight: 600;
+      }
+      .error {
+        color: #b91c1c;
+        font-weight: 600;
+      }
+      ol {
+        margin: 8px 0 0;
+        padding-left: 22px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>vite-plugin-skew-protection</h1>
+      <p class="muted">
+        Live demo on GitHub Pages. This site is rebuilt and redeployed every hour, and every deploy deletes the files of
+        the previous one. <a href="https://github.com/manInit/vite-plugin-skew-protection">Source and docs</a>
+      </p>
+
+      <div class="card">
+        <p>How to try it:</p>
+        <ol>
+          <li>Keep this tab open. Don't refresh it.</li>
+          <li>Wait for the next deploy. The page tells you when it is live.</li>
+          <li>Press the buttons: your old tab asks the host for chunks of the old build.</li>
+        </ol>
+      </div>
+
+      <div class="card" id="notice" hidden></div>
+
+      <div class="card" id="status">
+        <p>This tab runs build <code id="build"></code>, built at <span id="built-at"></span>.</p>
+        <p id="deploys">Checking for deploys…</p>
+      </div>
+
+      <div class="card">
+        <div class="actions">
+          <div>
+            <button id="load-carried" disabled>Load a lazy chunk</button>
+            <p class="muted">Carried into the new deploy by the plugin: loads, no reload.</p>
+          </div>
+          <div>
+            <button id="load-not-carried" disabled>Load a chunk that is gone</button>
+            <p class="muted">Excluded from carrying: 404, then the page reloads once.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="result">The buttons unlock after the next deploy.</div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

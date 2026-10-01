@@ -49,6 +49,8 @@
     "test": "vitest run --project unit",
     "test:e2e": "vitest run --project e2e",
     "test:compat": "node test/compat/run.mjs",
+    "demo:build": "vite build demo",
+    "demo:preview": "vite preview demo",
     "prepublishOnly": "pnpm check && pnpm test:e2e && pnpm check:package"
   },
   "devDependencies": {

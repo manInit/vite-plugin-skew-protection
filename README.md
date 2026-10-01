@@ -1,10 +1,16 @@
 # vite-plugin-skew-protection
 
+[![npm](https://img.shields.io/npm/v/vite-plugin-skew-protection)](https://www.npmjs.com/package/vite-plugin-skew-protection)
+[![CI](https://github.com/manInit/vite-plugin-skew-protection/actions/workflows/ci.yml/badge.svg)](https://github.com/manInit/vite-plugin-skew-protection/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/vite-plugin-skew-protection)](./LICENSE)
+
 **Stop `Failed to fetch dynamically imported module` after every deploy.**
 
 Keeps the chunks that open tabs still need on _any_ static host (GitHub Pages, Netlify, Cloudflare Pages, S3, nginx in Docker…), and reloads the page once if a chunk is gone anyway.
 
 ![Left: without the plugin the old tab breaks after a deploy. Right: with the plugin it keeps working.](./demo.gif)
+
+**[Live demo](https://maninit.github.io/vite-plugin-skew-protection/)** on GitHub Pages, redeployed every hour: open it, wait for the next deploy, press the button. The old tab loads a chunk that the new build no longer has. Source: [`demo/`](./demo), deployed by [`demo.yml`](./.github/workflows/demo.yml).
 
 ```bash
 npm i -D vite-plugin-skew-protection
@@ -169,6 +175,7 @@ pnpm check             # typecheck + oxlint + oxfmt --check + unit tests
 pnpm test:e2e          # browser scenarios: without plugin / carry / recover / cancel / offline / loop guard
 pnpm test:compat 5     # packed tarball + Vite 5 (or 6, 7): two builds in a row, needs `pnpm build` first
 pnpm check:package     # build, then publint + are-the-types-wrong on the packed tarball
+pnpm demo:build        # the live demo from `demo/`, needs `pnpm build` first
 pnpm lint:fix          # oxlint autofixes
 pnpm format            # oxfmt
 ```

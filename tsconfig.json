@@ -13,5 +13,5 @@
     "declaration": true,
     "noEmit": true
   },
-  "include": ["src", "test", "build", "tsup.config.ts", "vitest.config.ts"]
+  "include": ["src", "test", "build", "demo", "tsup.config.ts", "vitest.config.ts"]
 }
