@@ -44,7 +44,7 @@
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "check:package": "pnpm build && publint && attw --pack . --profile node16",
+    "check:package": "pnpm build && publint && npm_config_dry_run=false attw --pack . --profile node16",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
     "test": "vitest run --project unit",
     "test:e2e": "vitest run --project e2e",
